@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Ma'ruf Cell</title>
+    
+    <!-- ======================================================= -->
+    <!-- CSS DENGAN PENAMBAHAN DESAIN RESPONSIF -->
+    <!-- ======================================================= -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        :root {
+            --bg-dark: #121212;
+            --primary-surface: #1e1e1e;
+            --secondary-surface: #2a2a2a;
+            --accent-yellow: #facc15;
+            --accent-purple: #a855f7;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --glow-yellow: rgba(250, 204, 21, 0.5);
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+        }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* --- AUTHENTICATION PAGES --- */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .auth-form {
+            background: var(--primary-surface);
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--secondary-surface);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .auth-form h2 { margin: 0 0 10px 0; font-size: 2rem; }
+        .auth-form .subtitle { margin-bottom: 30px; color: var(--text-secondary); }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--secondary-surface);
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 0 3px var(--glow-yellow);
+        }
+        .auth-form button {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-yellow);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .switch-form { margin-top: 20px; font-size: 14px; }
+        .switch-form a { cursor: pointer; font-weight: bold; color: var(--accent-yellow); }
+
+        /* --- DASHBOARD STYLING --- */
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--secondary-surface);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--accent-yellow); }
+        .main-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        .main-nav a, .logout-button {
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 5px 0;
+            position: relative;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            text-decoration: none;
+        }
+        .main-nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0; width: 0; height: 2px;
+            background-color: var(--accent-yellow);
+            transition: width 0.3s ease;
+        }
+        .main-nav a:hover, .main-nav a.active { color: var(--text-primary); }
+        .main-nav a:hover::after, .main-nav a.active::after { width: 100%; }
+        .dropdown { position: relative; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 120%; left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-surface);
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            border-radius: 8px; z-index: 1; overflow: hidden;
+        }
+        .dropdown:hover .dropdown-content { display: block; }
+        .logout-button { color: #ef4444; }
+        
+        /* Hamburger Menu Icon (Hidden on Desktop) */
+        .hamburger-menu { display: none; }
+
+        /* --- CONTENT STYLING --- */
+        .content-area { padding: 0 40px; }
+        .page-content {
+            display: none;
+            padding-top: 40px;
+            padding-bottom: 60px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .page-content.active { display: block; }
+        .scroll-target { scroll-margin-top: 100px; }
+        
+        #beranda {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #beranda h2, .page-content h2 { font-size: 2.5rem; font-weight: 700; }
+        #beranda h2 .highlight { color: var(--accent-purple); }
+        .page-content h2 { border-bottom: 2px solid var(--accent-yellow); padding-bottom: 10px; display: inline-block; margin-bottom: 30px; }
+
+        /* --- PRODUCT GRID --- */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+        }
+        .product-card {
+            background: var(--primary-surface);
+            border: 1px solid var(--secondary-surface);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-card img { width: 80px; height: 80px; margin-bottom: 20px; object-fit: contain; }
+        .product-card h3 { font-size: 1.1rem; margin: 0 0 10px 0; color: var(--text-primary); }
+        .product-card .price { font-size: 1.2rem; font-weight: 700; color: var(--accent-yellow); margin-bottom: 20px; }
+        .buy-button {
+            background: var(--accent-yellow);
+            color: var(--bg-dark);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            width: 100%;
+        }
+        
+        /* ======================================= */
+        /* === PERBAIKAN RESPONSIF (MEDIA QUERY) === */
+        /* ======================================= */
+        @media (max-width: 768px) {
+            .main-header {
+                padding: 15px 20px;
+            }
+            .main-nav ul {
+                display: none; /* Sembunyikan menu desktop */
+                position: fixed;
+                top: 71px; /* Tinggi header */
+                left: 0;
+                width: 100%;
+                height: calc(100vh - 71px);
+                background-color: var(--bg-dark);
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 40px;
+                transform: translateX(100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            .main-nav ul.mobile-nav-active {
+                display: flex; /* Tampilkan kembali saat aktif */
+                transform: translateX(0);
+            }
+            .hamburger-menu {
+                display: flex; /* Tampilkan ikon hamburger */
+                flex-direction: column;
+                gap: 5px;
+                cursor: pointer;
+            }
+            .hamburger-menu .bar {
+                width: 25px;
+                height: 3px;
+                background-color: var(--text-primary);
+                border-radius: 2px;
+            }
+            .dropdown-content { /* Sesuaikan dropdown di mobile */
+                position: static;
+                transform: none;
+                box-shadow: none;
+                background: none;
+                text-align: center;
+            }
+            .dropdown:hover .dropdown-content {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .content-area {
+                padding: 0 20px;
+            }
+            #beranda h2, .page-content h2 {
+                font-size: 1.8rem;
+            }
+            .product-grid {
+                /* Sedikit penyesuaian agar lebih pas di layar kecil */
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            .auth-form {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ======================================================= -->
+    <!-- HTML (DENGAN PENAMBAHAN IKON HAMBURGER) -->
+    <!-- ======================================================= -->
+
+    <div id="login-view" class="view">
+        <div class="auth-container">
+            <form id="login-form" class="auth-form">
+                <h2>Selamat Datang Kembali!</h2><p class="subtitle">Silakan login ke akun Anda.</p>
+                <div class="form-group"><label for="login-email">Email</label><input type="email" id="login-email" required></div>
+                <div class="form-group"><label for="login-password">Password</label><input type="password" id="login-password" required></div>
+                <button type="submit">Login</button>
+                <p class="switch-form">Belum punya akun? <a id="go-to-register">Daftar di sini</a></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="register-view" class="view">
+        <div class="auth-container">
+            <form id="register-form" class="auth-form">
+                <h2>Daftar Akun Baru</h2><p class="subtitle">Buat akun untuk mulai bertransaksi.</p>
+                <div class="form-group"><label for="register-nama">Nama Lengkap</label><input type="text" id="register-nama" required></div>
+                <div class="form-group"><label for="register-email">Email</label><input type="email" id="register-email" required></div>
+                <div class="form-group"><label for="register-password">Password</label><input type="password" id="register-password" required></div>
+                <button type="submit">Daftar</button>
+                <p class="switch-form">Sudah punya akun? <a id="go-to-login">Login di sini</a></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="view">
+        <header class="main-header">
+            <div class="logo">Al-Ma'ruf Cell</div>
+            <nav class="main-nav">
+                <!-- Tambahkan ID untuk target JS -->
+                <ul id="main-nav-list">
+                    <li><a class="nav-link active" data-target="beranda">Beranda</a></li>
+                    <li><a class="nav-link" data-target="tentang">Tentang Kami</a></li>
+                    <li class="dropdown">
+                        <a class="nav-link">Produk</a>
+                        <div class="dropdown-content">
+                            <a class="nav-link" data-target="produk-pulsa">Pulsa</a>
+                            <a class="nav-link" data-target="produk-data">Pulsa Data</a>
+                            <a class="nav-link" data-target="produk-token">Token Listrik</a>
+                            <a class="nav-link" data-target="produk-topup">Top Up</a>
+                        </div>
+                    </li>
+                    <li><button id="logout-btn" class="logout-button">Logout</button></li>
+                </ul>
+            </nav>
+            <!-- Ikon Hamburger (hanya terlihat di mobile) -->
+            <div id="hamburger-btn" class="hamburger-menu">
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            </div>
+        </header>
+
+        <main class="content-area">
+            <section id="beranda" class="page-content active"><h2 id="welcome-title">Halo, <br>Selamat Datang di <span class="highlight">Al-Ma'ruf Cell</span></h2></section>
+            <section id="tentang" class="page-content scroll-target"><h2>Tentang Kami</h2><p><strong>Alamat:</strong> Jl. Merdeka No. 123, Jakarta, Indonesia</p><p><strong>No. Telepon/WhatsApp:</strong> 085792698607</p><p><strong>Email:</strong> kontak@almarufcell.com</p></section>
+            <section id="produk-pulsa" class="page-content scroll-target"><h2>Produk Pulsa</h2><div class="product-grid" id="pulsa-grid"></div></section>
+            <section id="produk-data" class="page-content scroll-target"><h2>Produk Pulsa Data</h2><div class="product-grid" id="data-grid"></div></section>
+            <section id="produk-token" class="page-content scroll-target"><h2>Token Listrik</h2><div class="product-grid" id="token-grid"></div></section>
+            <section id="produk-topup" class="page-content scroll-target"><h2>Top Up E-Wallet & Game</h2><div class="product-grid" id="topup-grid"></div></section>
+        </main>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- JAVASCRIPT DENGAN PENAMBAHAN LOGIKA HAMBURGER MENU -->
+    <!-- ======================================================= -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const NOMOR_WHATSAPP_PENJUAL = '6285792698607';
+        const produk = {
+            pulsa: [{ nama: 'Pulsa Telkomsel 10k', harga: 12000, img: 'img/telkomsel.jpg' },
+            { nama: 'Pulsa Telkomsel 20k', harga: 22000, img: 'img/telkomsel.jpg' },
+            { nama: 'Pulsa Telkomsel 30k', harga: 32000, img: 'img/telkomsel.jpg' },
+             { nama: 'Pulsa Telkomsel 40k', harga: 42000, img: 'img/telkomsel.jpg' },
+              { nama: 'Pulsa Telkomsel 50k', harga: 52000, img: 'img/telkomsel.jpg' },
+               { nama: 'Pulsa Telkomsel 60k', harga: 62000, img: 'img/telkomsel.jpg' },
+                { nama: 'Pulsa Telkomsel 70k', harga: 72000, img: 'img/telkomsel.jpg' },
+                 { nama: 'Pulsa Telkomsel 80k', harga: 82000, img: 'img/telkomsel.jpg' },
+                  { nama: 'Pulsa Telkomsel 90k', harga: 92000, img: 'img/telkomsel.jpg' },
+            { nama: 'Pulsa Telkomsel 100k', harga: 102000, img: 'img/telkomsel.jpg' }],
+            
+
+            data: [{ nama: 'Data 5GB Telkomsel', harga: 45000, img: 'img/80d316c7_telkomsel.jpg' },
+            { nama: 'Data 10GB XL', harga: 80000, img: 'img/7c0eed0a_410686bf_xl.jpg' }],
+
+            token: [{ nama: 'Token Listrik 20k', harga: 22000, img: 'img/0c40e51d_token.jpg' },
+            { nama: 'Token Listrik 50k', harga: 52000, img: 'img/e3df8848_token.jpg' }],
+
+            topup: [{ nama: 'Diamonds ML 86', harga: 25000, img: 'img/281ec911_DIAMOND.jpg' },
+            { nama: 'Top Up GoPay 50k', harga: 51500, img: 'img/39fea253_fd194d1a_unduhan.jpg' }]
+        };
+
+        const loginView = document.getElementById('login-view'), registerView = document.getElementById('register-view'), dashboardView = document.getElementById('dashboard-view');
+        const allViews = [loginView, registerView, dashboardView];
+        const loginForm = document.getElementById('login-form'), registerForm = document.getElementById('register-form');
+        const goToRegisterLink = document.getElementById('go-to-register'), goToLoginLink = document.getElementById('go-to-login');
+        
+        function showView(viewToShow) {
+            allViews.forEach(view => view.classList.remove('active'));
+            viewToShow.classList.add('active');
+        }
+
+        function initializeApp() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            currentUser ? (setupDashboard(currentUser), showView(dashboardView)) : showView(loginView);
+        }
+
+        function setupDashboard(user) {
+            document.getElementById('welcome-title').innerHTML = `Halo, ${user.nama.split(' ')[0]}! <br>Selamat Datang di <span class="highlight">Al-Ma'ruf Cell</span>`;
+            function createProductCard(item) {
+                return `<div class="product-card"><img src="${item.img}" alt="${item.nama}"><h3>${item.nama}</h3><p class="price">Rp ${item.harga.toLocaleString('id-ID')}</p><button class="buy-button" data-nama="${item.nama}" data-harga="${item.harga}">Beli</button></div>`;
+            }
+            document.getElementById('pulsa-grid').innerHTML = produk.pulsa.map(createProductCard).join('');
+            document.getElementById('data-grid').innerHTML = produk.data.map(createProductCard).join('');
+            document.getElementById('token-grid').innerHTML = produk.token.map(createProductCard).join('');
+            document.getElementById('topup-grid').innerHTML = produk.topup.map(createProductCard).join('');
+            document.querySelectorAll('.buy-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const namaProduk = e.target.getAttribute('data-nama'), hargaProduk = e.target.getAttribute('data-harga');
+                    const pesan = `Halo Al-Ma'ruf Cell, saya ${user.nama} mau beli produk ${namaProduk} dengan harga Rp ${parseInt(hargaProduk).toLocaleString('id-ID')}`;
+                    window.open(`https://api.whatsapp.com/send?phone=${NOMOR_WHATSAPP_PENJUAL}&text=${encodeURIComponent(pesan)}`, '_blank');
+                });
+            });
+        }
+
+        goToRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showView(registerView); });
+        goToLoginLink.addEventListener('click', (e) => { e.preventDefault(); showView(loginView); });
+        
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nama = document.getElementById('register-nama').value, email = document.getElementById('register-email').value, password = document.getElementById('register-password').value;
+            if (localStorage.getItem(email)) return alert('Email sudah terdaftar!');
+            localStorage.setItem(email, JSON.stringify({ nama, password }));
+            alert('Pendaftaran berhasil! Silakan login.');
+            registerForm.reset(); showView(loginView);
+        });
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value, password = document.getElementById('login-password').value;
+            const storedData = localStorage.getItem(email);
+            if (!storedData) return alert('Email tidak ditemukan!');
+            const userData = JSON.parse(storedData);
+            if (userData.password === password) {
+                localStorage.setItem('currentUser', JSON.stringify({ nama: userData.nama, email }));
+                loginForm.reset(); initializeApp();
+            } else { alert('Password salah!'); }
+        });
+        
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            if (confirm('Apakah Anda yakin ingin logout?')) { localStorage.removeItem('currentUser'); initializeApp(); }
+        });
+
+        // === LOGIKA BARU UNTUK NAVIGASI RESPONSIF ===
+        const navLinks = document.querySelectorAll('.nav-link'), pageContents = document.querySelectorAll('.page-content');
+        const produkDropdownLink = document.querySelector('.dropdown > a.nav-link');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const navList = document.getElementById('main-nav-list');
+
+        hamburgerBtn.addEventListener('click', () => navList.classList.toggle('mobile-nav-active'));
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('data-target');
+                if (!targetId) return;
+                const targetContent = document.getElementById(targetId);
+                if (targetContent) {
+                    pageContents.forEach(page => page.classList.remove('active'));
+                    targetContent.classList.add('active');
+                    navLinks.forEach(nav => nav.classList.remove('active'));
+                    link.classList.add('active');
+                    if (link.closest('.dropdown-content')) produkDropdownLink.classList.add('active');
+                    if (targetId !== 'beranda') targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    else window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Tutup menu mobile setelah link diklik
+                    navList.classList.remove('mobile-nav-active');
+                }
+            });
+        });
+        initializeApp();
+    });
+    </script>
+</body>
+</html>
